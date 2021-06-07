@@ -74,7 +74,7 @@ def surface(x):
     
 
 
-# In[5]:
+# In[4]:
 
 
 import seaborn as sn
@@ -83,29 +83,30 @@ data['Speed_MPH'] = data.Speed_KMH * 0.621371
 data = data[(data.Speed_MPH != 0) & (data.DoubleFault != True)] #drop data that did not have a serve speed
 
 #feature collection
-data.loc[:, 'Ace'] = (data.P1Ace == 1) | (data.P2Ace == 1)
-data.loc[:,'NetPoint'] = (data.P1NetPoint == 1) | (data.P2NetPoint == 1) 
-data.loc[:,'NetPointWon'] = (data.P1NetPointWon == 1) | (data.P2NetPointWon == 1) 
-data.loc[:,'UnforcedError'] = (data.P1UnfErr == 1) | (data.P2UnfErr == 1) 
-data.loc[:,'Winner'] = (data.P1Winner == 1) | (data.P2Winner == 1)
-data.loc[:,'FirstSrvIn'] = (data.ServeNumber == 1) | ((data.P1FirstSrvIn == 1) | (data.P2FirstSrvIn == 1))
-data.loc[:,'BreakPoint'] = data.loc[:, ['PointServer', 'P1Score', 'P2Score', 'P1BreakPoint', 'P2BreakPoint', 'PointWinner']].apply(lambda x: breakPoint(x), axis = 1)
-data.loc[:,'BreakPointWon'] = (data.BreakPoint) & (data.PointServer != data.PointWinner)
-data.loc[:,'DF'] = (data.P1DoubleFault == 1) | (data.P2DoubleFault == 1)
-data.loc[:,'ServeSpeed'] = data.Speed_KMH * 0.621371
-data.loc[:,'ServerWon'] = (data.PointWinner == data.PointServer)
-data.loc[:,'ServerLost'] = (data.PointWinner != data.PointServer)
-data.loc[:,'Surface'] = data.loc[:, ['match_id', 'P1Score']].apply(lambda x: surface(x), axis = 1)
-data.loc[:,'GamesPlayed'] = data.P1GamesWon + data.P2GamesWon
-data.loc[:,'ServerNetPoint'] = ((data.P1NetPoint == 1) & (data.PointServer == 1)) | ((data.P2NetPoint == 1) & (data.PointServer == 2))
+data.loc[:, 'Ace']              = (data.P1Ace == 1) | (data.P2Ace == 1)
+data.loc[:,'NetPoint']          = (data.P1NetPoint == 1) | (data.P2NetPoint == 1) 
+data.loc[:,'NetPointWon']       = (data.P1NetPointWon == 1) | (data.P2NetPointWon == 1) 
+data.loc[:,'UnforcedError']     = (data.P1UnfErr == 1) | (data.P2UnfErr == 1) 
+data.loc[:,'Winner']            = (data.P1Winner == 1) | (data.P2Winner == 1)
+data.loc[:,'FirstSrvIn']        = (data.ServeNumber == 1) | ((data.P1FirstSrvIn == 1) | (data.P2FirstSrvIn == 1))
+data.loc[:,'BreakPoint']        = data.loc[:, ['PointServer', 'P1Score', 'P2Score', 'P1BreakPoint', 'P2BreakPoint', 'PointWinner']].apply(lambda x: breakPoint(x), axis = 1)
+data.loc[:,'BreakPointWon']     = (data.BreakPoint) & (data.PointServer != data.PointWinner)
+data.loc[:,'DF']                = (data.P1DoubleFault == 1) | (data.P2DoubleFault == 1)
+data.loc[:,'ServeSpeed']        = data.Speed_KMH * 0.621371
+data.loc[:,'ServerWon']         = (data.PointWinner == data.PointServer)
+data.loc[:,'ServerLost']        = (data.PointWinner != data.PointServer)
+data.loc[:,'Surface']           = data.loc[:, ['match_id', 'P1Score']].apply(lambda x: surface(x), axis = 1)
+data.loc[:,'GamesPlayed']       = data.P1GamesWon + data.P2GamesWon
+data.loc[:,'ServerNetPoint']    = ((data.P1NetPoint == 1) & (data.PointServer == 1)) | ((data.P2NetPoint == 1) & (data.PointServer == 2))
 data.loc[:,"ServerNetPointWon"] = (data.ServerNetPoint & (data.PointServer == data.PointWinner))
 
 
 
 
-# In[6]:
+# In[5]:
 
 
+#rally length on every point
 plt.grid()
 a_plot = sn.histplot(x = data.Rally, stat = 'probability', binwidth = 3)
 a_plot.set(xlim = (0, 35))
@@ -115,9 +116,10 @@ a_plot.set(ylim = (0, .45))
 plt.title("Total Rally Length")
 
 
-# In[7]:
+# In[6]:
 
 
+#rally length on break points
 a_plot = sn.histplot(x = data[data.BreakPoint == True].Rally, stat = 'probability', binwidth = 3)
 a_plot.set(xlim = (0, 35))
 a_plot.set(ylim = (0, .45))
@@ -127,9 +129,10 @@ plt.grid()
 plt.title("Total Rally Length on Break Points")
 
 
-# In[8]:
+# In[7]:
 
 
+#rally length on break point saves
 a_plot = sn.histplot(x = data[(data.BreakPoint == True) & (data.BreakPointWon != True)].Rally, stat = 'probability', binwidth = 3)
 a_plot.set(xlim = (0, 35))
 a_plot.set(ylim = (0, .45))
@@ -139,7 +142,7 @@ plt.grid()
 plt.title("Total Rally Length on Break Point Saves")
 
 
-# In[9]:
+# In[8]:
 
 
 a_plot = sn.lineplot(x = [i for i in range(0,12)], y = data.groupby('GamesPlayed').mean()['BreakPoint'][0:11])
@@ -149,7 +152,7 @@ plt.grid()
 plt.xlabel("Games into Set")
 
 
-# In[10]:
+# In[9]:
 
 
 #bucketing by serve speed and then finding out win percentage and first serve in percentage
@@ -203,8 +206,10 @@ for i in range(80, 145, 5): #going up by fives if between then we bucket them fo
     
 
 
-# In[11]:
+# In[10]:
 
+
+#Save percentage by serve speed
 
 import matplotlib.ticker as mtick
 ax = sn.lineplot(x = buckets, y = [i * 100 for i in save_percentage])
@@ -217,8 +222,10 @@ plt.ylabel("Save Percentage")
 plt.xlabel("Serve Speed")
 
 
-# In[12]:
+# In[11]:
 
+
+#winner percentage by player
 
 ax1 = sn.lineplot(x = buckets, y = [i *100 for i in winner_percentage_loss], label = 'Server')
 ax2 = sn.lineplot(x = buckets, y = [i * 100 for i in winner_percentage_save], label = 'Returner')
@@ -232,8 +239,10 @@ plt.ylabel("Winner Percentage")
 plt.xlabel("Serve Speed MPH")
 
 
-# In[13]:
+# In[12]:
 
+
+#unforced error percentage by player
 
 ax1 = sn.lineplot(x = buckets, y = [i * 100 for i in unforced_error_percentage_save], label = 'Server')
 ax2 = sn.lineplot(x = buckets, y = [i * 100 for i in unforced_error_percentage_loss], label = 'Returner')
@@ -247,52 +256,52 @@ plt.ylabel("Unforced Error Percentage")
 plt.xlabel("Serve Speed MPH")
 
 
-# In[14]:
+# In[13]:
 
 
 data[data.BreakPoint].groupby('FirstSrvIn').mean()
 
 
-# In[15]:
+# In[17]:
 
 
+#Server percentage chance to get to the net
 ax = sn.lineplot(x = buckets, y = [i * 100 for i in net_point])
-#sn.lineplot(x = buckets, y = unforced_error_percentage_loss)
 
 ax.yaxis.set_major_formatter(mtick.PercentFormatter())
 
 plt.grid()
-plt.title("Percentage Chance to Get to the Net")
+plt.title("Server Percentage Chance to Get to the Net")
 
 plt.ylabel("Server Net Point Percentage")
+plt.xlabel("Serve Speed MPH")
+
+
+# In[18]:
+
+
+#server win percentage at the net
+ax = sn.lineplot(x = buckets, y = [i * 100 for i in net_point_won])
+ax.yaxis.set_major_formatter(mtick.PercentFormatter())
+
+
+plt.grid()
+plt.title("Server Win Percentage at the Net by Serve Speed")
+
+plt.ylabel("Server Net Point Win Percentage")
 plt.xlabel("Serve Speed MPH")
 
 
 # In[16]:
 
 
-ax = sn.lineplot(x = buckets, y = [i * 100 for i in net_point_won])
-#sn.lineplot(x = buckets, y = unforced_error_percentage_loss)
-ax.yaxis.set_major_formatter(mtick.PercentFormatter())
-
-
-plt.grid()
-plt.title("Win Percentage at the Net by Serve Speed")
-
-plt.ylabel("Server Net Point Win Percentage")
-plt.xlabel("Serve Speed MPH")
-
-
-# In[17]:
-
-
+#Returner percentage chance to get to the net
 ax = sn.lineplot(x = buckets, y = [i * 100 for i in return_net_point])
-#sn.lineplot(x = buckets, y = unforced_error_percentage_loss)
 ax.yaxis.set_major_formatter(mtick.PercentFormatter())
 
 
 plt.grid()
-plt.title("Oppenent Percent Chance to get to Net by Serve Speed")
+plt.title("Returner Percent Chance to get to Net by Serve Speed")
 
 plt.ylabel("Returner Net Point Win Percentage")
 plt.xlabel("Serve Speed MPH")
@@ -301,10 +310,7 @@ plt.xlabel("Serve Speed MPH")
 # In[18]:
 
 
-
-#sn.lineplot(x = buckets, y = unforced_error_percentage_loss)
-
-import matplotlib.ticker as mtick
+#returner win percentage at the net
 
 ax = sn.lineplot(x = buckets, y = [i * 100 for i in return_net_point_won])
 ax.yaxis.set_major_formatter(mtick.PercentFormatter())
